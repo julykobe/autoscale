@@ -20,6 +20,8 @@ class Condition(object):
 		self.net_in_threshold = rule['net_in_threshold']
 		self.net_out_type = rule['net_out_type']
 		self.net_out_threshold = rule['net_out_threshold']
+		# TODO refine this usage
+		self.rule = rule
 
 	def compare_threshold(self, monitor_data):
 		# TODO be sure that type don't be 0 for all
@@ -31,24 +33,28 @@ class Condition(object):
 			metric_type = metric + '_type'
 			metric_threshold = metric + '_threshold'
 
-			if self.metric_type != 0:
+			if self.rule[metric_type] == 0:
+				continue
+
+			else:
 				zero_flag = False
 
-			if self.metric_type == 1:
+				if (self.rule[metric_type] == 1) and (monitor_data[metric] <= self.rule[metric_threshold]) :
 				#data > threshold
-				if monitor_data[metric] <= self.metric_threshold:
 					result = False
 					break
 
-			elif self.metric_type == -1:
+				elif (self.rule[metric_type] == -1) and (monitor_data[metric] >= self.rule[metric_threshold]) :
 				#data < threshold
-				if monitor_data[metric] >= self.metric_threshold:
 					result = False
 					break
-			else:
-				result = False
+
+				#metric not in [-1,0,1] means wrong rule
+				elif self.rule[metric_type] not in [-1,0,1]:
+					result = False
 
 		if zero_flag == True:
+			#all type are zero
 			result = False
 
 		return result
@@ -109,7 +115,7 @@ class Rule(object):
 		monitor_data = get_monitor_data_by_group(self.group_id)
 
 		#compare with condition
-		result = self.condition.compareThreshold(monitor_data)
+		result = self.condition.compare_threshold(monitor_data)
 
 		#return
 		return result
