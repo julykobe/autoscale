@@ -3,6 +3,8 @@
 import sys, os, time, atexit
 from signal import SIGTERM
 
+import policy
+
 class Daemon:
 	"""
 	A generic daemon class.
@@ -135,10 +137,7 @@ class MyDaemon(Daemon):
 	def run(self):
 		from datetime import datetime
 		while True:
-			fd = open('/home/stack/record.dat', 'a')
-			# fd.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-			fd.write(datetime.now().isoformat()+('\n'))
-			fd.close()
+			rule.check_all_rules()
 			time.sleep(1)
 
 
