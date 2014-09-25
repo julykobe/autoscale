@@ -3,7 +3,7 @@
 import sys, os, time, atexit
 from signal import SIGTERM
 
-import policy
+import rule
 
 class Daemon:
 	"""
@@ -135,10 +135,13 @@ class Daemon:
 
 class MyDaemon(Daemon):
 	def run(self):
-		from datetime import datetime
 		while True:
 			rule.check_all_rules()
-			time.sleep(1)
+			fd = open('/tmp/my_daemon_log.dat', 'a')
+			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+			fd.write(now+'\n')
+			fd.close()
+			time.sleep(60)
 
 
 if __name__ == "__main__":

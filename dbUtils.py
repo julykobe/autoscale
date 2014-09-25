@@ -37,6 +37,8 @@ def get_instances_id_by_group(group_id):
 	return instances_id
 
 def get_monitor_data(instance_id):
+	instance_id = instance_id[0]
+	# TODO need to remove this ugly usage
 	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB, cursorclass=MySQLdb.cursors.DictCursor)
 	# TODO db need to change
 	cursor = con.cursor()
@@ -64,8 +66,10 @@ def get_monitor_data_by_group(group_id):
 		group_data['disk'] = group_data['disk'] + inst_data['diskUsed']
 		group_data['net_in'] = group_data['net_in'] + inst_data['networkIncoming']
 		group_data['net_out'] = group_data['net_out'] + inst_data['networkOutgoing']
-
-	group_data = dict(map(lambda (key,val):(key,val/inst_nums), group_data.iteritems()))
+	try:
+		group_data = dict(map(lambda (key,val):(key,val/inst_nums), group_data.iteritems()))
+	except ZeroDivisionError:
+		#process zero
 
 	return group_data
 
