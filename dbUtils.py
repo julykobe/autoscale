@@ -5,7 +5,7 @@ import MySQLdb, MySQLdb.cursors
 DBHOST = '10.10.82.112'
 DBUSER = 'root'
 DBPASSWORD = '123456'
-DB = 'InSTech_GAI'
+DB = 'Auto_Test'
 
 
 def get_all_rules():
@@ -69,6 +69,7 @@ def get_monitor_data_by_group(group_id):
 	try:
 		group_data = dict(map(lambda (key,val):(key,val/inst_nums), group_data.iteritems()))
 	except ZeroDivisionError:
+		pass
 		#process zero
 
 	return group_data
@@ -81,4 +82,4 @@ def update_cooldown_time(rule_id,flag):
 	con.commit()
 	cursor.close()
 	con.close()
-	return instance_data
+	return flag

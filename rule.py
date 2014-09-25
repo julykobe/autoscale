@@ -2,6 +2,8 @@
 
 import dbUtils
 
+import private_cloud
+
 class Condition(object):
 	"""
 	refers to the conditional data of a rule
@@ -72,6 +74,7 @@ class Action(object):
 		self.action = rule['action']
 		self.destination = rule['destination']
 		self.num = rule['num']
+		self.rule = rule
 
 	def execute(self):
 		if self.action == "add":
@@ -81,18 +84,18 @@ class Action(object):
 
 	def add_servers(self):
 		if self.destination == "OpenStack":
-			private_cloud.create_servers()
+			private_cloud.create_server()
 			# TODO add parameters
 			
 		elif self.destination == "ec2":
-			public_cloud.create_servers()
+			public_cloud.create_server()
 
-		dbUtils.update_cooldown_time(self.id, 1)
+		rule_act_complete = dbUtils.update_cooldown_time(self.rule['id'], 1)
 		# TODO implement the real cooldown function
 
 	def reduce_servers(self):
-		private_cloud.terminate_servers()
-		dbUtils.update_cooldown_time(self.id, 1)
+		private_cloud.terminate_server()
+		rule_act_complete = dbUtils.update_cooldown_time(self.rule['id'], 1)
 
 class Rule(object):
 	"""
@@ -112,10 +115,14 @@ class Rule(object):
 		if self.cooldown_time != 0:
 			return False
 		#get monitor data as a dict
-		monitor_data = get_monitor_data_by_group(self.group_id)
+		monitor_data = dbUtils.get_monitor_data_by_group(self.group_id)
 
 		#compare with condition
 		result = self.condition.compare_threshold(monitor_data)
+		
+		fd = open('/tmp/my_daemon_log.dat', 'a')
+		fd.write(str(result) +'\n')
+		fd.close()
 
 		#return
 		return result
@@ -136,7 +143,7 @@ def check_all_rules():
 	for db_rule in db_rules:
 		#init a rule
 		rule = Rule(db_rule)
-
+		
 		#get condition of a rule and analyse it
 		if rule.check_if_monitor_meet_condition():
 			rule.execute_action()
