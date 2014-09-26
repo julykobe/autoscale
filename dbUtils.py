@@ -26,6 +26,7 @@ def get_all_rules():
 def get_instances_id_by_group(group_id):
 	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB)
 	# TODO db need to change
+
 	cursor = con.cursor()
 	sql="select uuid from instances where group_id="+str(group_id)+" and vm_state='active'"
 	cursor.execute(sql)
@@ -40,6 +41,7 @@ def get_monitor_data(instance_id):
 	instance_id = instance_id[0]
 	# TODO need to remove this ugly usage
 	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB, cursorclass=MySQLdb.cursors.DictCursor)
+
 	# TODO db need to change
 	cursor = con.cursor()
 	sql = "select * from vm_instance where instance_id ='"+ instance_id +"' order by timeStamp desc limit 1"
@@ -74,12 +76,20 @@ def get_monitor_data_by_group(group_id):
 
 	return group_data
 
-def update_cooldown_time(rule_id,flag):
+def update_flag_in_db(rule_id, flag_name, flag):
 	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB)
 	cursor = con.cursor()
-	sql="update autoscale_rules set cooldown_time= '" + str(flag) +"' where id="+str(rule_id)
+	sql="update autoscale_rules set %s = %s where id = %s" % (flag_name, flag, rule_id)
 	cursor.execute(sql)
 	con.commit()
 	cursor.close()
 	con.close()
 	return flag
+
+def update_cooldown_time(rule_id, flag):
+	flag_name = 'cooldown_time'
+	return update_flag_in_db(rule_id, flag_name, flag)
+
+def update_auto_revert(rule_id,flag):
+	flag_name = 'auto_revert'
+	return update_flag_in_db(rule_id, flag_name, flag)

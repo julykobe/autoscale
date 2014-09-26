@@ -14,12 +14,12 @@ class Rule(object):
 		#in case that policies will become more complicated , i devided condition and action into seperate class
 		#self.id = rule['id']
 		self.rule = rule
+		# TODO need to remove this ugly usage
+		self.instance_num = self.rule['cooldown_time']
 
 	#condition functions
 	def check_if_monitor_meet_condition(self):
-		#cooldown time
-		if self.rule['cooldown_time'] != 0:
-			return False
+
 		#get monitor data as a dict
 		monitor_data = dbUtils.get_monitor_data_by_group(self.rule['group_id'])
 
@@ -59,7 +59,7 @@ class Rule(object):
 				result = False
 				break
 
-			#metric not in [-1,0,1] means wrong rule
+			#metric_type not in [-1,0,1] means wrong rule
 			elif self.rule[metric_type] not in [-1,0,1]:
 				result = False
 				break
@@ -72,11 +72,26 @@ class Rule(object):
 
 	#action functions
 
-	def execute(self):
-		if self.rule['action'] == "add":
+	def execute_action(self):
+		if self.rule['action'] == 'add':
+			# TODO need to refine 
+			if self.instance_num >= self.rule['max_num'] :
+				self.rule['destination'] == 'ec2'
+
 			self.add_servers()
-		elif self.rule['action'] == "reduce":
+
+		elif self.rule['action'] == 'reduce':
+			if self.instance_num > self.rule['max_num']:
+				self.rule['destination'] == 'ec2'
+
 			self.reduce_servers()
+
+	def execute_revert_action(self):
+		if self.rule['action'] == 'add':
+			self.reduce_servers()
+			
+		elif self.rule['action'] == 'reduce':
+			self.add_servers()
 
 	def add_servers(self):
 		if self.rule['destination'] == "OpenStack":
@@ -86,18 +101,27 @@ class Rule(object):
 		elif self.rule['destination'] == "ec2":
 			public_cloud.create_server()
 
-		rule_act_complete = dbUtils.update_cooldown_time(self.rule['id'], 1)
+		#so ugly! use cooldown_time as instance numbers
 		# TODO implement the real cooldown function
+		self.instance_num += 1
+
+		total_add_num = dbUtils.update_cooldown_time(self.rule['id'], self.instance_num)
 
 	def reduce_servers(self):
-		private_cloud.terminate_server()
-		rule_act_complete = dbUtils.update_cooldown_time(self.rule['id'], 1)
+		if self.rule['destination'] == "OpenStack":
+			private_cloud.delete_server()
+			# TODO add parameters
+			
+		elif self.rule['destination'] == "ec2":
+			public_cloud.delete_server()
 
-	def execute_action(self):
-		self.execute()
+		self.instance_num -= 1
 
-	def get_monitor_data_by_group(self):
-		return dbUtils.get_monitor_data_by_group(self.rule['group_id'])
+		total_add_num = dbUtils.update_cooldown_time(self.rule['id'], self.instance_num)
+
+
+
+
 
 
 
@@ -112,6 +136,10 @@ def check_all_rules():
 		
 		#get condition of a rule and analyse it
 		if rule.check_if_monitor_meet_condition():
+
+			#an experiment func:auto revert
+			if ( rule.instance_num != 0 ) and ( rule.rule['auto_revert'] == 1 ):
+				rule.execute_revert_action()
 			rule.execute_action()
 		else:
 			continue

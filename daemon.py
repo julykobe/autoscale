@@ -141,7 +141,7 @@ class MyDaemon(Daemon):
 			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 			fd.write(now+'\n')
 			fd.close()
-			time.sleep(60)
+			time.sleep(15)
 
 
 if __name__ == "__main__":
