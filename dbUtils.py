@@ -7,6 +7,23 @@ DBUSER = 'root'
 DBPASSWORD = '123456'
 DB = 'Auto_Test'
 
+#add db connection decorator
+def db_connect_control(sql_execute_func):
+	def wrapper(*args):
+		con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB, cursorclass=MySQLdb.cursors.DictCursor)
+		cursor = con.cursor()
+		sql_execute_func(cursor, *args)
+		cursor.close()
+		con.close()
+		return cursor
+		# UNdecide
+	return wrapper
+
+def experiment_get_all_rules(cursor):
+	sql = "select * from autoscale_rules"
+	cursor.execute(sql)
+	rules = cursor.fetchall()
+	return rules
 
 def get_all_rules():
 	"""
