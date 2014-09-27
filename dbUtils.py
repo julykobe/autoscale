@@ -110,3 +110,29 @@ def update_cooldown_time(rule_id, flag):
 def update_auto_revert(rule_id,flag):
 	flag_name = 'auto_revert'
 	return update_flag_in_db(rule_id, flag_name, flag)
+
+def update_ec2_action(rule_id, flag):
+	flag_name = 'ec2_action'
+	return update_flag_in_db(rule_id, flag_name, flag)
+
+def read_ec2_action(rule_id):
+	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB)
+	cursor = con.cursor()
+	sql="select ec2_action from autoscale_rules	 where id ="+str(rule_id)
+	cursor.execute(sql)
+	ec2_action = cursor.fetchall()
+	#type is a tuple, like
+	#(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
+	cursor.close()
+	con.close()
+	return ec2_action
+
+def get_last_instance_id(group_id):
+	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB)
+	cursor = con.cursor()
+	sql = "select uuid from instances where group_id ='"+ str(group_id) +"' order by created_at desc limit 1"
+	cursor.execute(sql)
+	instance_id = cursor.fetchall()
+	cursor.close()
+	con.close()
+	return instance_id[0][0]

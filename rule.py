@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-import dbUtils
+import time
 
-import private_cloud
+import dbUtils
+import private_cloud, public_cloud
 
 
 
@@ -27,7 +28,7 @@ class Rule(object):
 		result = self.compare_threshold(monitor_data)
 		
 		fd = open('/tmp/my_daemon_log.dat', 'a')
-		fd.write(str(result) +'\n')
+		fd.write(str(result)+' [rusult] \n')
 		fd.close()
 
 		#return
@@ -76,30 +77,43 @@ class Rule(object):
 		if self.rule['action'] == 'add':
 			# TODO need to refine 
 			if self.instance_num >= self.rule['max_num'] :
-				self.rule['destination'] == 'ec2'
+				self.rule['destination'] = 'ec2'
 
 			self.add_servers()
 
 		elif self.rule['action'] == 'reduce':
 			if self.instance_num > self.rule['max_num']:
-				self.rule['destination'] == 'ec2'
+				self.rule['destination'] = 'ec2'
 
 			self.reduce_servers()
 
 	def execute_revert_action(self):
 		if self.rule['action'] == 'add':
-			self.reduce_servers()
+			self.rule['action'] == 'reduce'
 			
 		elif self.rule['action'] == 'reduce':
-			self.add_servers()
+			self.rule['action'] == 'add'
+		self.execute_action()
 
 	def add_servers(self):
 		if self.rule['destination'] == "OpenStack":
 			private_cloud.create_server()
 			# TODO add parameters
+			fd = open('/tmp/my_daemon_log.dat', 'a')
+			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+			fd.write(str(now)+' [launch] a private instance\n')
+			fd.close()
 			
 		elif self.rule['destination'] == "ec2":
-			public_cloud.create_server()
+			
+			#public_cloud.create_server()
+			#use for fake
+			public_cloud.create_server(self.rule['id'])
+
+			fd = open('/tmp/my_daemon_log.dat', 'a')
+			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+			fd.write(str(now)+' [launch] a public instance\n')
+			fd.close()
 
 		#so ugly! use cooldown_time as instance numbers
 		# TODO implement the real cooldown function
@@ -109,11 +123,21 @@ class Rule(object):
 
 	def reduce_servers(self):
 		if self.rule['destination'] == "OpenStack":
-			private_cloud.delete_server()
+			private_cloud.delete_server(self.rule['group_id'])
 			# TODO add parameters
+
+			fd = open('/tmp/my_daemon_log.dat', 'a')
+			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+			fd.write(str(now)+' [terminate] a private instance\n')
+			fd.close()
 			
 		elif self.rule['destination'] == "ec2":
 			public_cloud.delete_server()
+
+			fd = open('/tmp/my_daemon_log.dat', 'a')
+			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+			fd.write(str(now)+' [launch] a public instance\n')
+			fd.close()
 
 		self.instance_num -= 1
 
@@ -136,10 +160,9 @@ def check_all_rules():
 		
 		#get condition of a rule and analyse it
 		if rule.check_if_monitor_meet_condition():
-
-			#an experiment func:auto revert
-			if ( rule.instance_num != 0 ) and ( rule.rule['auto_revert'] == 1 ):
-				rule.execute_revert_action()
 			rule.execute_action()
+		elif ( rule.instance_num != 0 ) and ( rule.rule['auto_revert'] == 1 ):
+			#an experiment func:auto revert
+			rule.execute_revert_action()
 		else:
 			continue

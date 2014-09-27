@@ -28,3 +28,10 @@ def create_server():
     flavor = nova.flavors.find(name = "m1.tiny")
 
     instance = nova.servers.create(name = "bryant", image = image, flavor = flavor)
+
+def delete_server():
+    #get instance_id
+    creds = get_nova_creds()
+    nova = nvclient.Client(**creds)
+
+    nova.servers.delete(instance_id)

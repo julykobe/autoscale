@@ -139,9 +139,9 @@ class MyDaemon(Daemon):
 			rule.check_all_rules()
 			fd = open('/tmp/my_daemon_log.dat', 'a')
 			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-			fd.write(now+'\n')
+			fd.write(now+'[checked] over\n')
 			fd.close()
-			time.sleep(15)
+			time.sleep(10)
 
 
 if __name__ == "__main__":
