@@ -89,10 +89,10 @@ class Rule(object):
 
 	def execute_revert_action(self):
 		if self.rule['action'] == 'add':
-			self.rule['action'] == 'reduce'
+			self.rule['action'] = 'reduce'
 			
 		elif self.rule['action'] == 'reduce':
-			self.rule['action'] == 'add'
+			self.rule['action'] = 'add'
 		self.execute_action()
 
 	def add_servers(self):
@@ -132,7 +132,7 @@ class Rule(object):
 			fd.close()
 			
 		elif self.rule['destination'] == "ec2":
-			public_cloud.delete_server()
+			public_cloud.delete_server(self.rule['id'])
 
 			fd = open('/tmp/my_daemon_log.dat', 'a')
 			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))

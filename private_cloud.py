@@ -3,6 +3,7 @@ import os,time
 
 import novaclient.v1_1.client as nvclient
 
+import dbUtils
 
 def get_keystone_creds():
     d = {}
@@ -26,12 +27,25 @@ def create_server():
 
     image = nova.images.find(name = "cirros-0.3.2-x86_64")
     flavor = nova.flavors.find(name = "m1.tiny")
+    nics = [{'net-id': '80963cd2-0f29-433c-bb33-c4e25ad8719b'}]
 
-    instance = nova.servers.create(name = "bryant", image = image, flavor = flavor)
+    instance = nova.servers.create(name = "bryant", image = image, flavor = flavor, nics = nics)
 
-def delete_server():
+    instance.add_floating_ip(get_floating_ip())
+
+def delete_server(group_id):
     #get instance_id
+    instance_id = dbUtils.get_last_instance_id(group_id)
     creds = get_nova_creds()
     nova = nvclient.Client(**creds)
 
     nova.servers.delete(instance_id)
+
+def get_floating_ip():
+    creds = get_nova_creds()
+    nova = nvclient.Client(**creds)
+    ip_lists = nova.floating_ips.list()
+    for tmp in ip_lists:
+        ip_str = str(tmp)[1:-1].split(',')
+        if ip_str[0].find('None') != -1:
+            return ip_str[3][4:]
