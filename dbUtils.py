@@ -10,21 +10,29 @@ DB = 'Auto_Test'
 #add db connection decorator
 def db_connect_control(sql_execute_func):
 	def wrapper(*args):
+		#get db connect
 		con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB, cursorclass=MySQLdb.cursors.DictCursor)
 		cursor = con.cursor()
+
+		#perform the exact db action
 		sql_execute_func(cursor, *args)
+
+		#close db connect
 		cursor.close()
 		con.close()
 		return cursor
 		# UNdecide
 	return wrapper
 
-def experiment_get_all_rules(cursor):
+@db_connect_control
+def get_all_rules(cursor):
 	sql = "select * from autoscale_rules"
 	cursor.execute(sql)
 	rules = cursor.fetchall()
 	return rules
 
+
+'''
 def get_all_rules():
 	"""
 	get all autoscale rules
@@ -39,6 +47,7 @@ def get_all_rules():
 	con.close()
 	#return a tuple consists of dict
 	return rules
+'''
 
 def get_instances_id_by_group(group_id):
 	con = MySQLdb.connect(host=DBHOST,user=DBUSER,passwd=DBPASSWORD,db=DB)
@@ -54,6 +63,7 @@ def get_instances_id_by_group(group_id):
 	con.close()
 	return instances_id
 
+
 def get_monitor_data(instance_id):
 	instance_id = instance_id[0]
 	# TODO need to remove this ugly usage
@@ -67,6 +77,7 @@ def get_monitor_data(instance_id):
 	cursor.close()
 	con.close()
 	return instance_data
+
 
 def get_monitor_data_by_group(group_id):
 	#get all instances in the group, a tuple
