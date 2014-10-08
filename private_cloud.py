@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os,time
 
-import novaclient.v1_1.client as nvclient
+#import novaclient.v1_1.client as nvclient
 
 import dbUtils
 
