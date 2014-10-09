@@ -5,6 +5,7 @@ import logging
 
 import time
 import rule
+import utils
 
 if __name__ == "__main__":
 
@@ -14,11 +15,7 @@ if __name__ == "__main__":
 					filename = 'autoscaling.log',
 					filemode = 'w')
 
-	config = ConfigParser.ConfigParser()
-	with open('autoscaling.conf', 'r') as conf_file:
-		config.readfp(conf_file)
-
-	mode = config.get('mode', 'testing')
+	mode = utils.get_config('mode', 'testing')
 	logging.warning(mode)
 	'''
 	while True:

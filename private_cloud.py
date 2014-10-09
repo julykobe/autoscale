@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import os,time
 
-#import novaclient.v1_1.client as nvclient
-
-import dbUtils
+import utils,dbUtils
 
 def get_keystone_creds():
     d = {}
@@ -22,16 +20,22 @@ def get_nova_creds():
     return d
 
 def create_server():
-    creds = get_nova_creds()
-    nova = nvclient.Client(**creds)
+    # TODO
+    if True == utils.get_config('mod', 'testing'):
+        print 'test'
+        #LOG
+    else:
+        import novaclient.v1_1.client as nvclient
+        creds = get_nova_creds()
+        nova = nvclient.Client(**creds)
 
-    image = nova.images.find(name = "cirros-0.3.2-x86_64")
-    flavor = nova.flavors.find(name = "m1.tiny")
-    nics = [{'net-id': '80963cd2-0f29-433c-bb33-c4e25ad8719b'}]
+        image = nova.images.find(name = "cirros-0.3.2-x86_64")
+        flavor = nova.flavors.find(name = "m1.tiny")
+        nics = [{'net-id': '80963cd2-0f29-433c-bb33-c4e25ad8719b'}]
 
-    instance = nova.servers.create(name = "bryant", image = image, flavor = flavor, nics = nics)
+        instance = nova.servers.create(name = "bryant", image = image, flavor = flavor, nics = nics)
 
-    instance.add_floating_ip(get_floating_ip())
+        instance.add_floating_ip(get_floating_ip())
 
 def delete_server(group_id):
     #get instance_id
