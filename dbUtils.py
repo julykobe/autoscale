@@ -2,10 +2,15 @@
 
 import MySQLdb, MySQLdb.cursors
 
-DBHOST = '10.10.82.112'
-DBUSER = 'root'
-DBPASSWORD = '123456'
-DB = 'Auto_Test'
+import utils
+
+DBHOST = utils.get_config('database', 'DBHOST')
+DBUSER = utils.get_config('database', 'DBUSER')
+DBPASSWORD = utils.get_config('database', 'DBPASSWORD')
+DB = utils.get_config('database', 'DB')
+
+
+
 
 #add db connection decorator
 def db_connect_control(sql_execute_func):
