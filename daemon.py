@@ -3,7 +3,9 @@
 import sys, os, time, atexit
 from signal import SIGTERM
 
-import rule
+import rule,log
+
+LOG = log.get_logger()
 
 class Daemon:
 	"""
@@ -137,10 +139,7 @@ class MyDaemon(Daemon):
 	def run(self):
 		while True:
 			rule.check_all_rules()
-			fd = open('/tmp/my_daemon_log.dat', 'a')
-			now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-			fd.write(now+'[checked] over\n')
-			fd.close()
+			LOG.info("All rules have been checked")
 			time.sleep(10)
 
 

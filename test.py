@@ -13,6 +13,7 @@ if __name__ == "__main__":
 	while True:
 		mode = utils.get_config('mode', 'testing')
 		if 'True' == mode:
-			LOG.warning("NOW running in testing mode")
+			LOG.warning("NOW running in TESTING mode")
+
 		rule.check_all_rules()
 		LOG.info("All rules have been checked")
