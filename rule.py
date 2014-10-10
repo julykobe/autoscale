@@ -16,12 +16,12 @@ class Rule(object):
 	def __init__(self, rule):
 		#self.id = rule['id']
 		self.rule = rule
+
 		# TODO need to remove this ugly usage
 		self.instance_num = self.rule['cooldown_time']
 
 	#condition functions
 	def check_if_monitor_meet_condition(self):
-
 		#get monitor data as a dict
 		monitor_data = dbUtils.get_monitor_data_by_group(self.rule['group_id'])
 
@@ -48,13 +48,13 @@ class Rule(object):
 			#else metric_type != 0
 			zero_flag = False
 
-			if (self.rule[metric_type] == 1) and (monitor_data[metric] <= self.rule[metric_threshold]) :
 			#data > threshold
+			if (self.rule[metric_type] == 1) and (monitor_data[metric] <= self.rule[metric_threshold]) :
 				result = False
 				break
 
-			elif (self.rule[metric_type] == -1) and (monitor_data[metric] >= self.rule[metric_threshold]) :
 			#data < threshold
+			elif (self.rule[metric_type] == -1) and (monitor_data[metric] >= self.rule[metric_threshold]) :
 				result = False
 				break
 
@@ -63,8 +63,8 @@ class Rule(object):
 				result = False
 				break
 
+		#all type are zero
 		if zero_flag == True:
-			#all type are zero
 			result = False
 
 		return result
@@ -101,7 +101,6 @@ class Rule(object):
 			LOG.info('A private instance has been launched')
 			
 		elif self.rule['destination'] == "ec2":
-			
 			#public_cloud.create_server()
 			#use for fake
 			public_cloud.create_server(self.rule['id'])
