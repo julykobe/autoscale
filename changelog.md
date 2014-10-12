@@ -1,5 +1,6 @@
 # Changelog
 ## TODO
+- validate parameters!!!
 - refine the db decorator(and umysql?)
 - ~~add db decorator~~
 - ~~add exception control progress~~
