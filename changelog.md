@@ -1,13 +1,13 @@
 # Changelog
 ## TODO
 - validate parameters!!!
-- refine the db decorator(and umysql?)
+- ~~refine the db decorator(and umysql?)~~
 - ~~add db decorator~~
 - ~~add exception control progress~~
 - remove the usage of cooldown_time as instance numbers, instead implement the real func
 - ~~add log module~~
 - refine the daemon(system service?)
-- private_cloud and public_cloud refinement
+- ~~private_cloud and public_cloud refinement~~
 
 ## Version 0.92
 - add some exceptions in db module

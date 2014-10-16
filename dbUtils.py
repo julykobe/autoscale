@@ -21,6 +21,8 @@ def db_connect_control(cursorclass, *args, **kwargs):
             	cursor = con.cursor(cursorclass = MySQLdb.cursors.DictCursor)
             elif 'tuple' == cursorclass:
             	cursor = con.cursor()
+            else:
+            	LOG.error('Undefined cursorclass')
 
             try:
                 # perform the exact db action

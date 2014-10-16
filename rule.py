@@ -19,16 +19,21 @@ class Rule(object):
     """
 
     def __init__(self, rule):
-        #self.id = rule['id']
-        self.rule = rule
+        self.id = rule['id']
+        self.group_id = rule['group_id']
+        self.action = rule['action']
+        self.flavor = rule['flavor']
+        self.destination = rule['destination']
+        self.max_num = rule['max_num']
+        self.auto_revert = rule['auto_revert']
+        self.instance_add_num = rule['instance_add_num']
 
-        # TODO need to remove this ugly usage
-        self.instance_num = self.rule['cooldown_time']
+        self.rule = rule
 
     # condition functions
     def check_if_monitor_meet_condition(self):
         # get monitor data as a dict
-        monitor_data = dbUtils.get_monitor_data_by_group(self.rule['group_id'])
+        monitor_data = dbUtils.get_monitor_data_by_group(self.group_id)
 
         # compare with condition
         result = self.compare_threshold(monitor_data)
@@ -77,35 +82,35 @@ class Rule(object):
     # action functions
 
     def execute_action(self):
-        if self.rule['action'] == 'add':
+        if self.action == 'add':
             # TODO need to refine
-            if self.instance_num >= self.rule['max_num']:
-                self.rule['destination'] = 'ec2'
+            if self.instance_add_num >= self.max_num:
+                self.destination = 'ec2'
 
             self.add_servers()
 
-        elif self.rule['action'] == 'reduce':
-            if self.instance_num > self.rule['max_num']:
-                self.rule['destination'] = 'ec2'
+        elif self.action == 'reduce':
+            if self.instance_add_num > self.max_num:
+                self.destination = 'ec2'
 
             self.reduce_servers()
 
     def execute_revert_action(self):
-        if self.rule['action'] == 'add':
-            self.rule['action'] = 'reduce'
+        if self.action == 'add':
+            self.action = 'reduce'
 
-        elif self.rule['action'] == 'reduce':
-            self.rule['action'] = 'add'
+        elif self.action == 'reduce':
+            self.action = 'add'
 
         self.execute_action()
 
     def add_servers(self):
-        if self.rule['destination'] == "OpenStack":
+        if self.destination == "OpenStack":
             private_cloud.create_server()
             # TODO add parameters
             LOG.info('A private instance has been launched')
 
-        elif self.rule['destination'] == "ec2":
+        elif self.destination == "ec2":
             # public_cloud.create_server()
             # use for fake
             public_cloud.create_server(self.rule['id'])
@@ -113,27 +118,27 @@ class Rule(object):
 
         # so ugly! use cooldown_time as instance numbers
         # TODO implement the real cooldown function
-        self.instance_num += 1
+        self.instance_add_num += 1
 
         total_add_num = dbUtils.update_cooldown_time(
-            self.rule['id'], self.instance_num)
+            self.id, self.instance_add_num)
 
     def reduce_servers(self):
-        if self.rule['destination'] == "OpenStack":
-            private_cloud.delete_server(self.rule['group_id'])
+        if self.destination == "OpenStack":
+            private_cloud.delete_server(self.group_id)
             # TODO add parameters
 
             LOG.info('A private instance has been terminated')
 
-        elif self.rule['destination'] == "ec2":
-            public_cloud.delete_server(self.rule['id'])
+        elif self.destination == "ec2":
+            public_cloud.delete_server(self.id)
 
             LOG.info('A public instance has been launched')
 
-        self.instance_num -= 1
+        self.instance_add_num -= 1
 
         total_add_num = dbUtils.update_cooldown_time(
-            self.rule['id'], self.instance_num)
+            self.id, self.instance_add_num)
 
 
 def check_all_rules():
@@ -142,19 +147,22 @@ def check_all_rules():
 
     # loop and check every rule
     for db_rule in db_rules:
-        # init a rule
-        rule = Rule(db_rule)
-        LOG.info('Checking the rule %s' % rule.rule['id'])
+        try:
+            # init a rule
+            rule = Rule(db_rule)
+        except:
+            LOG.error('Connot initialize the rule: %s' % db_rule['id'])
+        LOG.info('Checking the rule: %s' % rule.id)
 
         # get condition of a rule and analyse it
         if rule.check_if_monitor_meet_condition():
 
             LOG.info('Going to execute the %s action of the rule' %
-                     rule.rule['action'])
+                     rule.action)
             rule.execute_action()
-            LOG.info('The rule %s has been executed' % rule.rule['id'])
+            LOG.info('The rule %s has been executed' % rule.id)
 
-        elif (rule.instance_num != 0) and (rule.rule['auto_revert'] == 1):
+        elif (rule.instance_add_num != 0) and (rule.auto_revert == 1):
             # an experiment func:auto revert
             rule.execute_revert_action()
         else:

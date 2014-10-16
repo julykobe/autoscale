@@ -2,7 +2,9 @@
 
 import utils
 import dbUtils
+import log
 
+LOG = log.get_logger()
 
 def create_server(rule_id):
     # testing environment
