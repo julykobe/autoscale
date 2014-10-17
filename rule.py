@@ -120,7 +120,7 @@ class Rule(object):
         # TODO implement the real cooldown function
         self.instance_add_num += 1
 
-        total_add_num = dbUtils.update_cooldown_time(
+        total_add_num = dbUtils.update_instance_add_num(
             self.id, self.instance_add_num)
 
     def reduce_servers(self):
@@ -137,7 +137,7 @@ class Rule(object):
 
         self.instance_add_num -= 1
 
-        total_add_num = dbUtils.update_cooldown_time(
+        total_add_num = dbUtils.update_instance_add_num(
             self.id, self.instance_add_num)
 
 

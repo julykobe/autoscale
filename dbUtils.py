@@ -11,18 +11,20 @@ DBPASSWORD = utils.get_config('database', 'DBPASSWORD')
 DB = utils.get_config('database', 'DB')
 
 
-# add db connection decorator
+# TODO need to move the cursor execute to decorator, and the func provides sql only
 def db_connect_control(cursorclass, *args, **kwargs):
     def real_decorator(sql_execute_func):
         def wrapper(*args, **kwargs):
             # get db connect
-            con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
+            con = MySQLdb.connect(
+                host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
             if 'dict' == cursorclass:
-            	cursor = con.cursor(cursorclass = MySQLdb.cursors.DictCursor)
+                cursor = con.cursor(cursorclass=MySQLdb.cursors.DictCursor)
             elif 'tuple' == cursorclass:
-            	cursor = con.cursor()
+                cursor = con.cursor()
             else:
-            	LOG.error('Undefined cursorclass')
+                LOG.error('Undefined cursorclass')
+                raise ValueError
 
             # perform the exact db action
             result = sql_execute_func(cursor, *args, **kwargs)
@@ -35,30 +37,32 @@ def db_connect_control(cursorclass, *args, **kwargs):
     return real_decorator
 
 
-@db_connect_control(cursorclass = "dict")
+@db_connect_control(cursorclass="dict")
 def get_all_rules(cursor):
     sql = "select * from autoscale_rules"
     try:
         cursor.execute(sql)
     except:
-    	LOG.error('Unable to execute sql action: %s' % sql)
+        LOG.error('Unable to execute sql action: %s' % sql)
     rules = cursor.fetchall()
     return rules
 
-@db_connect_control(cursorclass = "tuple")
+
+@db_connect_control(cursorclass="tuple")
 def get_instances_id_by_group(cursor, group_id):
     sql = "select uuid from instances where group_id=" + \
         str(group_id) + " and vm_state='active'"
     try:
         cursor.execute(sql)
     except:
-    	LOG.error('Unable to execute sql action: %s' % sql)
+        LOG.error('Unable to execute sql action: %s' % sql)
     instances_id = cursor.fetchall()
-        # type is a tuple, like
-        #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
+    # type is a tuple, like
+    #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
     return instances_id
 
-@db_connect_control(cursorclass = "dict")
+
+@db_connect_control(cursorclass="dict")
 def get_monitor_data(cursor, instance_id):
     instance_id = instance_id[0]
     # TODO need to remove this ugly usage
@@ -68,18 +72,19 @@ def get_monitor_data(cursor, instance_id):
     try:
         cursor.execute(sql)
     except:
-    	LOG.error('Unable to execute sql action: %s' % sql)
+        LOG.error('Unable to execute sql action: %s' % sql)
     instance_data = cursor.fetchall()[0]
     return instance_data
 
-@db_connect_control(cursorclass = "tuple")
+
+@db_connect_control(cursorclass="tuple")
 def get_last_instance_id(cursor, group_id):
     sql = "select uuid from instances where group_id ='" + \
         str(group_id) + "' order by created_at desc limit 1"
     try:
         cursor.execute(sql)
     except:
-    	LOG.error('Unable to execute sql action: %s' % sql)
+        LOG.error('Unable to execute sql action: %s' % sql)
     instance_id = cursor.fetchall()
     return instance_id[0][0]
 
@@ -91,10 +96,12 @@ def get_monitor_data_by_group(group_id):
     # get all monitor data, a list made by dict
     monitor_data = map(get_monitor_data, instances)
 
-    inst_nums = len(instances)  # instance numbers in group
+    # instance numbers in group
+    inst_nums = len(instances)
     group_data = {'mem': 0, 'cpu': 0, 'disk': 0, 'net_in': 0, 'net_out': 0}
 
     # TODO change style
+    # because the db of instance monitor is bad
     for inst_data in monitor_data:
         group_data['mem'] = group_data['mem'] + inst_data['memUsage']
         group_data['cpu'] = group_data['cpu'] + inst_data['cpuUsage']
@@ -104,10 +111,11 @@ def get_monitor_data_by_group(group_id):
         group_data['net_out'] = group_data[
             'net_out'] + inst_data['networkOutgoing']
     try:
-        group_data = dict(map(lambda (key, val): (key, val / inst_nums), group_data.iteritems()))
+        group_data = dict(map(lambda (key, val): (key, val / inst_nums),
+                              group_data.iteritems()))
+
     except ZeroDivisionError:
         LOG.error('There are no instances in group: %s' % group_id)
-        # process zero
 
     return group_data
 
@@ -131,8 +139,8 @@ def update_flag_in_db(rule_id, flag_name, flag):
     return flag
 
 
-def update_cooldown_time(rule_id, flag):
-    flag_name = 'cooldown_time'
+def update_instance_add_num(rule_id, flag):
+    flag_name = 'instance_add_num'
     return update_flag_in_db(rule_id, flag_name, flag)
 
 
@@ -140,7 +148,7 @@ def update_auto_revert(rule_id, flag):
     flag_name = 'auto_revert'
     return update_flag_in_db(rule_id, flag_name, flag)
 
-# remove these ec2 db action
+# TODO remove these ugly ec2 db action
 def update_ec2_action(rule_id, flag):
     flag_name = 'ec2_action'
     return update_flag_in_db(rule_id, flag_name, flag)
