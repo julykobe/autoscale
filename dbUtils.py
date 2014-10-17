@@ -24,11 +24,8 @@ def db_connect_control(cursorclass, *args, **kwargs):
             else:
             	LOG.error('Undefined cursorclass')
 
-            try:
-                # perform the exact db action
-                result = sql_execute_func(cursor, *args, **kwargs)
-            except:
-                LOG.error('Unable to fetch data')
+            # perform the exact db action
+            result = sql_execute_func(cursor, *args, **kwargs)
 
             # close db connect
             cursor.close()
@@ -41,7 +38,10 @@ def db_connect_control(cursorclass, *args, **kwargs):
 @db_connect_control(cursorclass = "dict")
 def get_all_rules(cursor):
     sql = "select * from autoscale_rules"
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql)
+    except:
+    	LOG.error('Unable to execute sql action: %s' % sql)
     rules = cursor.fetchall()
     return rules
 
@@ -49,7 +49,10 @@ def get_all_rules(cursor):
 def get_instances_id_by_group(cursor, group_id):
     sql = "select uuid from instances where group_id=" + \
         str(group_id) + " and vm_state='active'"
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql)
+    except:
+    	LOG.error('Unable to execute sql action: %s' % sql)
     instances_id = cursor.fetchall()
         # type is a tuple, like
         #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
@@ -62,67 +65,24 @@ def get_monitor_data(cursor, instance_id):
 
     sql = "select * from vm_instance where instance_id ='" + \
         instance_id + "' order by timeStamp desc limit 1"
-    cursor.execute(sql)
+    try:
+        cursor.execute(sql)
+    except:
+    	LOG.error('Unable to execute sql action: %s' % sql)
     instance_data = cursor.fetchall()[0]
-
     return instance_data
 
-'''
-def get_all_rules():
-	"""
-	get all autoscale rules
-	"""
-	con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB, cursorclass=MySQLdb.cursors.DictCursor)
-	# TODO db may need to change
-	cursor = con.cursor()
-	sql = "select * from autoscale_rules"
-	cursor.execute(sql)
-	rules = cursor.fetchall()
-	cursor.close()
-	con.close()
-	#return a tuple consists of dict
-	return rules
-
-
-
-def get_instances_id_by_group(group_id):
-    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
-    cursor = con.cursor()
-    sql = "select uuid from instances where group_id=" + \
-        str(group_id) + " and vm_state='active'"
-
+@db_connect_control(cursorclass = "tuple")
+def get_last_instance_id(cursor, group_id):
+    sql = "select uuid from instances where group_id ='" + \
+        str(group_id) + "' order by created_at desc limit 1"
     try:
         cursor.execute(sql)
-        instances_id = cursor.fetchall()
-        # type is a tuple, like
-        #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
     except:
-        LOG.error('Unable to fetch data')
+    	LOG.error('Unable to execute sql action: %s' % sql)
+    instance_id = cursor.fetchall()
+    return instance_id[0][0]
 
-    cursor.close()
-    con.close()
-    return instances_id
-
-
-def get_monitor_data(instance_id):
-    instance_id = instance_id[0]
-    # TODO need to remove this ugly usage
-    con = MySQLdb.connect(
-        host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB, cursorclass=MySQLdb.cursors.DictCursor)
-    cursor = con.cursor()
-    sql = "select * from vm_instance where instance_id ='" + \
-        instance_id + "' order by timeStamp desc limit 1"
-
-    try:
-        cursor.execute(sql)
-        instance_data = cursor.fetchall()[0]
-    except:
-        LOG.error('Unable to fetch data')
-
-    cursor.close()
-    con.close()
-    return instance_data
-'''
 
 def get_monitor_data_by_group(group_id):
     # get all instances in the group, a tuple
@@ -180,7 +140,7 @@ def update_auto_revert(rule_id, flag):
     flag_name = 'auto_revert'
     return update_flag_in_db(rule_id, flag_name, flag)
 
-
+# remove these ec2 db action
 def update_ec2_action(rule_id, flag):
     flag_name = 'ec2_action'
     return update_flag_in_db(rule_id, flag_name, flag)
@@ -202,20 +162,3 @@ def read_ec2_action(rule_id):
     cursor.close()
     con.close()
     return ec2_action
-
-
-def get_last_instance_id(group_id):
-    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
-    cursor = con.cursor()
-    sql = "select uuid from instances where group_id ='" + \
-        str(group_id) + "' order by created_at desc limit 1"
-
-    try:
-        cursor.execute(sql)
-        instance_id = cursor.fetchall()
-    except:
-        LOG.error('Unable to fetch data')
-
-    cursor.close()
-    con.close()
-    return instance_id[0][0]
