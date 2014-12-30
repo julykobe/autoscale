@@ -75,3 +75,16 @@ def get_floating_ip():
         ip_str = str(tmp)[1:-1].split(',')
         if ip_str[0].find('None') != -1:
             return ip_str[3][4:]
+
+def live_migrate_for_host(host_name):
+    # testing environment
+    if 'True' == utils.get_config('mode', 'testing'):
+        LOG.info('Now begin live migrate')
+
+    # producting environment
+    else:
+        creds = get_nova_creds()
+        nova = nvclient.Client(**creds)
+        instance_ids = dbUtils.get_instances_id_by_host(host_name)
+        for instance_id in instance_ids:
+            nova.servers.live_migrate(instance_id)#maybe don't need host Or add host for the second parameter
