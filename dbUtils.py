@@ -61,6 +61,18 @@ def get_instances_id_by_group(cursor, group_id):
     #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
     return instances_id
 
+@db_connect_control(cursorclass="tuple")
+def get_instances_id_by_host(cursor, host_name):
+    sql = "select uuid from instances where hostname='" + \
+        host_name + "' and vm_state='active'"
+    try:
+        cursor.execute(sql)
+    except:
+        LOG.error('Unable to execute sql action: %s' % sql)
+    instances_id = cursor.fetchall()
+    # type is a tuple, like
+    #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
+    return instances_id
 
 @db_connect_control(cursorclass="dict")
 def get_monitor_data(cursor, instance_id):
