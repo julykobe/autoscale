@@ -6,6 +6,7 @@ import utils
 import dbUtils
 import private_cloud
 import public_cloud
+import energy
 
 import log
 
@@ -32,6 +33,8 @@ class Rule(object):
 
     # condition functions
     def check_if_monitor_meet_condition(self):
+        if self.group_id = 0:
+            energy.execute(self.max_num)
         # get monitor data as a dict
         monitor_data = dbUtils.get_monitor_data_by_group(self.group_id)
 

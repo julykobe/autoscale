@@ -5,6 +5,7 @@ import time
 import utils
 import dbUtils
 import log
+import novaclient.v1_1.client as nvclient
 
 LOG = log.get_logger()
 
@@ -35,7 +36,6 @@ def create_server():
     # producting environment
     else:
         # TODO diy rest?
-        import novaclient.v1_1.client as nvclient
         creds = get_nova_creds()
         nova = nvclient.Client(**creds)
 
@@ -75,6 +75,11 @@ def get_floating_ip():
         ip_str = str(tmp)[1:-1].split(',')
         if ip_str[0].find('None') != -1:
             return ip_str[3][4:]
+
+def count_instances_num_on_host(host_name):
+    creds = get_nova_creds()
+    nova = nvclient.Client(**creds)
+    return len(nova.hosts.get(host_name))
 
 def live_migrate_for_host(host_name):
     # testing environment
