@@ -11,9 +11,6 @@ import public_cloud
 LOG = log.get_logger()
 
 def execute(rule):
-    check_all_nodes(rule)
-
-def check_all_nodes(rule):
     #hosts = utils.get_config('hosts', 'hosts')
     #hosts = ["compute1","compute3","compute5"]
     hosts = ["compute5"]
@@ -25,6 +22,7 @@ def check_all_nodes(rule):
         else:
             LOG.info('Host %s running in normal status' % host)
             continue
+
 
 def host_meet_threshold(host, rule):
     ## only for test

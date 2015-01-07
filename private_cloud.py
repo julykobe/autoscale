@@ -93,4 +93,8 @@ def live_migrate_for_host(host_name):
         instance_ids = dbUtils.get_instances_id_by_host(host_name)
         for instance_id in instance_ids:
             inst = nova.servers.get(str(instance_id))
-            inst.live_migrate("compute3")#or ("compute5")
+            if host_name == "compute3":
+                target_host = "compute5"
+            else:
+                target_host = "compute3"
+            inst.live_migrate(target_host)#or ("compute5")
