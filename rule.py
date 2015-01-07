@@ -33,8 +33,12 @@ class Rule(object):
 
     # condition functions
     def check_if_monitor_meet_condition(self):
+        # the following 4 lines are only for energy saveing
         if self.group_id = 0:
-            energy.execute(self.max_num)
+            energy.execute(self.rule)
+        else
+            return False
+
         # get monitor data as a dict
         monitor_data = dbUtils.get_monitor_data_by_group(self.group_id)
 

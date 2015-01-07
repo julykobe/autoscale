@@ -10,19 +10,53 @@ import public_cloud
 
 LOG = log.get_logger()
 
-def execute(min_num):
-    check_all_nodes(min_num)
+def execute(rule):
+    check_all_nodes(rule)
 
-def check_all_nodes(min_num):
+def check_all_nodes(rule):
     hosts = utils.get_config('hosts', 'hosts')
     for host in hosts:
-        if private_cloud.count_instances_num_on_host(host) >= min_num:
+        if host_meet_threshold(host, rule):
             LOG.info('Host %s running in normal status' % host)
             continue
         else:
             LOG.info('Host %s is goning to energy saving mode' % host)
             energy_saving(host)
             LOG.info('Host %s have been successfully live-migrated and shutdown')
+
+def host_meet_threshold(host, rule):
+    metrics = ['mem', 'cpu']
+    result = True
+
+    for metric in metrics:
+        metric_type = metric + '_type'
+        metric_threshold = metric + '_threshold'
+
+        if self.rule[metric_type] == 0:
+            continue
+
+        zero_flag == False
+
+        instances_num = private_cloud.count_instances_num_on_host(host)
+
+        factor = 1
+        if metric == "mem":
+            factor = 2
+        else # cpu
+            factor = 2
+
+        load = instances_num * factor
+
+        if load < rule[metric_threshold]:
+            result = True
+        else
+            continue
+
+    # all type are zero
+    if zero_flag == True:
+        result = False
+
+    return result
 
 def energy_saving(host):
     private_cloud.live_migrate_for_host(host)
