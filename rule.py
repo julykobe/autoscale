@@ -27,16 +27,16 @@ class Rule(object):
         self.destination = rule['destination']
         self.max_num = rule['max_num']
         self.auto_revert = rule['auto_revert']
-        self.instance_add_num = rule['instance_add_num']
+        #self.instance_add_num = rule['instance_add_num']
 
         self.rule = rule
 
     # condition functions
     def check_if_monitor_meet_condition(self):
         # the following 4 lines are only for energy saveing
-        if self.group_id = 0:
+        if self.group_id == 0:
             energy.execute(self.rule)
-        else
+        else:
             return False
 
         # get monitor data as a dict
