@@ -47,6 +47,26 @@ def get_all_rules(cursor):
     rules = cursor.fetchall()
     return rules
 
+@db_connect_control(cursorclass="dict")
+def get_all_hosts(cursor):
+    sql = "select * from hardware where state = 'up'"
+    try:
+        cursor.execute(sql)
+    except:
+        LOG.error('Unable to execute sql action: %s' % sql)
+    hosts = cursor.fetchall()
+    return rules
+
+@db_connect_control(cursorclass="dict")
+def get_host_data_by_host_name(cursor, host_name):
+    sql = "select * from hardware where hardwareName ='" + host_name + "'"
+    try:
+        cursor.execute(sql)
+    except:
+        LOG.error('Unable to execute sql action: %s' % sql)
+    host_data = cursor.fetchall()
+    return host_data[0]
+
 
 @db_connect_control(cursorclass="tuple")
 def get_instances_id_by_group(cursor, group_id):
