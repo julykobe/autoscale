@@ -55,7 +55,7 @@ def get_all_hosts(cursor):
     except:
         LOG.error('Unable to execute sql action: %s' % sql)
     hosts = cursor.fetchall()
-    return rules
+    return hosts
 
 @db_connect_control(cursorclass="dict")
 def get_host_data_by_host_name(cursor, host_name):
