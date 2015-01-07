@@ -15,7 +15,8 @@ def execute(rule):
 
 def check_all_nodes(rule):
     #hosts = utils.get_config('hosts', 'hosts')
-    hosts = ["compute1","compute3","compute5"]
+    #hosts = ["compute1","compute3","compute5"]
+    hosts = ["compute5"]
     for host in hosts:
         if host_meet_threshold(host, rule):
             LOG.info('Host %s is goning to energy saving mode' % host)
@@ -26,6 +27,10 @@ def check_all_nodes(rule):
             continue
 
 def host_meet_threshold(host, rule):
+    ## only for test
+    if host == "compute5":
+        return True
+
     metrics = ['mem', 'cpu', 'disk']
     zero_flag = True
     result = False
