@@ -17,12 +17,12 @@ def check_all_nodes(rule):
     hosts = utils.get_config('hosts', 'hosts')
     for host in hosts:
         if host_meet_threshold(host, rule):
-            LOG.info('Host %s running in normal status' % host)
-            continue
-        else:
             LOG.info('Host %s is goning to energy saving mode' % host)
             energy_saving(host)
             LOG.info('Host %s have been successfully live-migrated and shutdown')
+        else:
+            LOG.info('Host %s running in normal status' % host)
+            continue
 
 def host_meet_threshold(host, rule):
     metrics = ['mem', 'cpu', 'disk']
