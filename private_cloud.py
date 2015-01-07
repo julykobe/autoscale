@@ -92,4 +92,5 @@ def live_migrate_for_host(host_name):
         nova = nvclient.Client(**creds)
         instance_ids = dbUtils.get_instances_id_by_host(host_name)
         for instance_id in instance_ids:
-            nova.servers.live_migrate(instance_id)#maybe don't need host Or add host for the second parameter
+            inst = nova.servers.get(str(instance_id))
+            inst.live_migrate()#or ("compute5")

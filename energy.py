@@ -35,7 +35,7 @@ def energy_saving(host):
             demo.stop()
         else:
             raise StopIteration
-        except:
-    print 'Undefined Operation!'
+    except:
+        print 'Undefined Operation!'
 
 
