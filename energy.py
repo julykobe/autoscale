@@ -82,15 +82,10 @@ def host_meet_threshold(host, rule):
 def energy_saving(host):
     private_cloud.live_migrate_for_host(host)
     import node_manager
-    demo=node_manage.computeNode(host)
-    try:
-        if sys.argv[1]=='start':
-            demo.start()
-        elif sys.argv[1]=='stop':
-            demo.stop()
-        else:
-            raise StopIteration
-    except:
-        print 'Undefined Operation!'
+    demo=node_manager.computeNode(host)
+    demo.stop()
 
-
+def energy_adding(host):
+    import node_manager
+    demo=node_manager.computeNode(host)
+    demo.start()
