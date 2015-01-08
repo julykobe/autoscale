@@ -21,24 +21,10 @@ class Rule(object):
 
     def __init__(self, rule):
         self.id = rule['id']
-        self.group_id = rule['group_id']
-        self.action = rule['action']
-        self.flavor = rule['flavor']
-        self.destination = rule['destination']
-        self.max_num = rule['max_num']
-        self.auto_revert = rule['auto_revert']
-        #self.instance_add_num = rule['instance_add_num']
-
         self.rule = rule
 
     # condition functions
     def check_if_monitor_meet_condition(self):
-        # the following 4 lines are only for energy saveing
-        if self.group_id == 0:
-            energy.execute(self.rule)
-        else:
-            return False
-
         # get monitor data as a dict
         monitor_data = dbUtils.get_monitor_data_by_group(self.group_id)
 
@@ -174,3 +160,16 @@ def check_all_rules():
             rule.execute_revert_action()
         else:
             continue
+
+def check_energy_rules():
+    db_rules = dbUtils.get_energy_rules()
+
+    for db_rule in db_rules:
+        try:
+            rule = Rule(db_rule)
+        except:
+            LOG.error('Connot initialize the rule: %s' % db_rule['id'])
+
+        LOG.info('Checking the rule: %s' % rule.id)
+        energy.execute(rule)
+        LOG.info('The rule %s has been checked' % rule.id)

@@ -48,6 +48,16 @@ def get_all_rules(cursor):
     return rules
 
 @db_connect_control(cursorclass="dict")
+def get_energy_rules(cursor):
+    sql = "select * from energy"
+    try:
+        cursor.execute(sql)
+    except:
+        LOG.error('Unable to execute sql action: %s' % sql)
+    rules = cursor.fetchall()
+    return rules
+
+@db_connect_control(cursorclass="dict")
 def get_all_hosts(cursor):
     sql = "select * from hardware where state = 'up'"
     try:

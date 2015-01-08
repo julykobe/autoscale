@@ -13,7 +13,7 @@ LOG = log.get_logger()
 def execute(rule):
     #hosts = utils.get_config('hosts', 'hosts')
     #hosts = ["compute1","compute3","compute5"]
-    hosts = ["compute5"]
+    hosts = ["compute1","compute2","compute3","compute5"] # compute4
     for host in hosts:
         if host_meet_threshold(host, rule):
             LOG.info('Host %s is goning to energy saving mode' % host)
@@ -29,8 +29,10 @@ def host_meet_threshold(host, rule):
     if host == "compute5":
         return True
 
-    metrics = ['mem', 'cpu', 'disk']
-    zero_flag = True
+    metric = rule['type']
+    threshold = rule['threshold']
+    action = rule['action']
+
     result = False
 
     #host_num
@@ -39,6 +41,12 @@ def host_meet_threshold(host, rule):
     host_mem = host_info['memorySize']
     host_cpu = host_info['CPU']
     host_disk = host_info['diskSize']
+
+    if action == 'off' and host_num <= int(utils.get_config('hosts', 'MIN_NUM')):
+        return False
+
+    if action == 'on' and host_num >= int(utils.get_config('hosts', 'MAX_NUM')):
+        return False
 
     # if hosts number <= MIN_NUM, return false, do nothing
     if host_num <= int(utils.get_config('hosts', 'MIN_NUM')):
