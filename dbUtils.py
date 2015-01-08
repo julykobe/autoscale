@@ -58,7 +58,7 @@ def get_energy_rules(cursor):
     return rules
 
 @db_connect_control(cursorclass="dict")
-def get_all_hosts(cursor):
+def get_all_up_hosts(cursor):
     sql = "select * from hardware where state = 'up'"
     try:
         cursor.execute(sql)
