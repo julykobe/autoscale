@@ -147,7 +147,8 @@ class MyDaemon(Daemon):
 
     def run(self):
         while True:
-            rule.check_all_rules()
+            #rule.check_all_rules()
+            rule.check_energy_rules()
             LOG.info("All rules have been checked")
             time.sleep(10)
 
