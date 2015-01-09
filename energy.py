@@ -39,6 +39,7 @@ def host_meet_threshold(host, rule):
     #host_num
     host_num = len(dbUtils.get_all_up_hosts())
     host_info = dbUtils.get_host_data_by_host_name(host)
+    host_state = host_info['state']
     host_mem = host_info['memorySize']
     host_cpu = host_info['CPU']
     host_disk = host_info['diskSize']
@@ -46,7 +47,7 @@ def host_meet_threshold(host, rule):
     if action == 'off' and host_num <= int(utils.get_config('hosts', 'MIN_NUM')):
         return False
 
-    if action == 'on' and host_num < int(utils.get_config('hosts', 'MAX_NUM')):
+    if action == 'on' and host_state == 'down' host_num < int(utils.get_config('hosts', 'MAX_NUM')):
         return True # then up this host
 
     # in case of error
