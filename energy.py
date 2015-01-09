@@ -20,12 +20,12 @@ def execute(rule):
         hosts = hosts[::-1]
 
     for host in hosts:
+        LOG.info('Checking Host %s' % host)
         if host_meet_threshold(host, rule):
             LOG.info('Result is True, execute action for Host %s' % host)
             energy_action(host,rule.action)
         else:
             LOG.info('Host %s running in normal status' % host)
-            continue
 
 
 def host_meet_threshold(host, rule):
