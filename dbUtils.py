@@ -60,7 +60,7 @@ def get_energy_rules(cursor):
 
 @db_connect_control(cursorclass="dict")
 def get_all_up_hosts(cursor):
-    sql = "select * from hardware where type = 'compute_Node' state = 'up'"
+    sql = "select * from hardware where type = 'compute_Node' and state = 'up'"
     try:
         cursor.execute(sql)
     except:
