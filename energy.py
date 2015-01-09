@@ -44,6 +44,9 @@ def host_meet_threshold(host, rule):
     host_cpu = host_info['CPU']
     host_disk = host_info['diskSize']
 
+    if action == 'off' and host_state == 'down':
+        return False
+
     if action == 'off' and host_num <= int(utils.get_config('hosts', 'MIN_NUM')):
         return False
 
