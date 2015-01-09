@@ -47,7 +47,7 @@ def host_meet_threshold(host, rule):
     if action == 'off' and host_num <= int(utils.get_config('hosts', 'MIN_NUM')):
         return False
 
-    if action == 'on' and host_state == 'down' host_num < int(utils.get_config('hosts', 'MAX_NUM')):
+    if action == 'on' and host_state == 'down' and host_num < int(utils.get_config('hosts', 'MAX_NUM')):
         return True # then up this host
 
     # in case of error
