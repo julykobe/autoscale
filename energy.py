@@ -68,7 +68,7 @@ def host_meet_threshold(host, rule):
         host_total = host_disk
 
     real_load = instances_num * factor / host_total
-    LOG.info('Host %s real_load is %s' % host, real_load)
+    LOG.info('Host %s real_load is %s' % host, str(real_load))
     LOG.info('Threshold is %s' % threshold)
     return real_load < threshold
 
