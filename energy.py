@@ -33,7 +33,9 @@ def host_meet_threshold(host, rule):
 
     threshold = rule.threshold
     action = rule.action
-
+    
+    host_info = dbUtils.get_host_data_by_host_name(host)
+    host_state = host_info['state']
     result = False
 
     #host_num
@@ -69,7 +71,7 @@ def on_status_check(host, rule):
     host_info = dbUtils.get_host_data_by_host_name(host)
     host_state = host_info['state']
     
-    if host_state == 'up'
+    if host_state == 'up':
         return False
 
     min_host = "null"
