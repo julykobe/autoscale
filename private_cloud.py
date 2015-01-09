@@ -89,23 +89,23 @@ def count_instances_num_on_host(host_name):
 
 def live_migrate_for_host(host_name):
     # testing environment
-    if 'True' == utils.get_config('mode', 'testing'):
-        LOG.info('live migrate')
+    #if 'True' == utils.get_config('mode', 'testing'):
+    #    LOG.info('live migrate')
 
     # producting environment
-    else:
-        LOG.info('Now begin live migrate')
-        creds = get_nova_creds()
-        nova = nvclient.Client(**creds)
-        instance_ids = dbUtils.get_instance_id_by_host_from_nova_db(host_name)
-        for instance_id in instance_ids:
+    #else:
+    LOG.info('Now begin live migrate')
+    creds = get_nova_creds()
+    nova = nvclient.Client(**creds)
+    instance_ids = dbUtils.get_instance_id_by_host_from_nova_db(host_name)
+    for instance_id in instance_ids:
 
-            instance_id = instance_id['uuid']
-            inst = nova.servers.get(str(instance_id))
-            available_hosts = ["compute1", "compute2", "compute3"]
-            target_host = random.choice(available_hosts)
-            LOG.info('Now begin live migrate instance %s to Host %s' % (instance_id, target_host))
+        instance_id = instance_id['uuid']
+        inst = nova.servers.get(str(instance_id))
+        available_hosts = ["compute1", "compute2", "compute3"]
+        target_host = random.choice(available_hosts)
+        LOG.info('Now begin live migrate instance %s to Host %s' % (instance_id, target_host))
 
-            inst.live_migrate(target_host)
-            # set vm_state to migrating
-            # dbUtils.update_instance_state_to_migrating(instance_id)
+        inst.live_migrate(target_host)
+        # set vm_state to migrating
+        # dbUtils.update_instance_state_to_migrating(instance_id)

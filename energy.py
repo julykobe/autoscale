@@ -142,18 +142,12 @@ def energy_saving(host):
         LOG.info('Host cannot do live-migration, go directly shutdown %s' % host)
 
     # shutdown node
-    if 'True' == utils.get_config('mode', 'testing'):
-        LOG.info('Now begin to shutdown node')
-    else:
-        import node_manage
-        demo=node_manage.computeNode(host)
-        demo.stop()
-        LOG.info('Host %s has been successfully shutdown' % host)
+    import node_manage
+    demo=node_manage.computeNode(host)
+    demo.stop()
+    LOG.info('Host %s has been successfully shutdown' % host)
 
 def energy_adding(host):
-    if 'True' == utils.get_config('mode', 'testing'):
-        LOG.info('Now begin to start node')
-    else:
-        import node_manage
-        demo=node_manage.computeNode(host)
-        demo.start()
+    import node_manage
+    demo=node_manage.computeNode(host)
+    demo.start()
