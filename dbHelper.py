@@ -26,7 +26,7 @@ def isNodeExist(nodeName):
         try:
 		cnx=getConnectionForDB()
 		cursor = cnx.cursor()
-		query=("select count(*) from hardware_copy where hardwareName = '%s';")%(nodeName)		
+		query=("select count(*) from hardware where hardwareName = '%s';")%(nodeName)		
 		cursor.execute(query)
 		if cursor.fetchone()[0]==1:
                         return True
@@ -41,7 +41,7 @@ def nodeDetails(nodeName):
         try:
                 cnx=getConnectionForDB()
 		cursor = cnx.cursor()
-		query=("select hardwareIp,sysUser,MAC,state from hardware_copy where hardwareName ='%s';")%(nodeName)
+		query=("select hardwareIp,sysUser,MAC,state from hardware where hardwareName ='%s';")%(nodeName)
 		cursor.execute(query)
 		details=cursor.fetchone()
 		nodeInfo['ip']=details[0]
@@ -60,7 +60,7 @@ def nodeUpdateState(nodeName,state):
 	try:
 		cnx=getConnectionForDB()
 		cursor = cnx.cursor()
-		query=("update hardware_copy set state='%s' where hardwareName='%s';")%(state,nodeName)
+		query=("update hardware set state='%s' where hardwareName='%s';")%(state,nodeName)
 		cursor.execute(query)
                 cnx.commit()
 	except:
