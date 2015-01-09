@@ -16,6 +16,7 @@ CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute5"]
 def execute(rule):
     hosts = ["compute1","compute2","compute3","compute5"] # compute4
     # hosts = ["compute9","compute8","compute7","compute6","compute5","compute4","compute3","compute2","compute1"]
+
     if rule.action == 'off':
         hosts = hosts[::-1]
 
@@ -30,7 +31,6 @@ def execute(rule):
 
 def host_meet_threshold(host, rule):
 
-    metric = rule.type
     threshold = rule.threshold
     action = rule.action
 
@@ -38,27 +38,62 @@ def host_meet_threshold(host, rule):
 
     #host_num
     host_num = len(dbUtils.get_all_up_hosts())
-    host_info = dbUtils.get_host_data_by_host_name(host)
-    host_state = host_info['state']
-    host_mem = host_info['memorySize']
-    host_cpu = host_info['CPU']
-    host_disk = host_info['diskSize']
+    
 
     if action == 'off' and host_state == 'down':
         return False
 
-    if action == 'off' and host_num <= int(utils.get_config('hosts', 'MIN_NUM')):
+    if action == 'off' and host_num <= 3:#int(utils.get_config('hosts', 'MIN_NUM')):
         return False
 
-    if action == 'on' and host_state == 'down' and host_num < int(utils.get_config('hosts', 'MAX_NUM')):
-        return True # then up this host
+    if action == 'on':
+        return on_status_check(host, rule)
+
+    #if action == 'on' and host_state == 'down' and host_num < 6:#int(utils.get_config('hosts', 'MAX_NUM')):
+    #    return True # then up this host
 
     # in case of error
     if action == 'on':
         return False
 
     # following is to process the 'off' logic
+    real_load = get_host_real_load(host, rule.type)
+
+    LOG.info('Host %s real_load is %s' % (host, str(real_load)))
+    LOG.info('Threshold is %s' % threshold)
+
+    return real_load < threshold
+
+def on_status_check(host, rule):
+    hosts = ["compute1","compute2","compute3","compute5"] # compute4
+    host_info = dbUtils.get_host_data_by_host_name(host)
+    host_state = host_info['state']
+    
+    if host_state == 'up'
+        return False
+
+    min_host = "null"
+    min_load = 100
+
+    for ho in hosts:
+        load = get_host_real_load(ho, rule.type)
+        if load < min_load and load > 0:
+            min_load = load
+            min_host = ho
+
+    if min_load > rule.threshold:
+        return True
+    return False
+
+
+def get_host_real_load(host, metric):
     instances_num = len(dbUtils.get_instance_id_by_host_from_nova_db(host))
+
+    host_info = dbUtils.get_host_data_by_host_name(host)
+    host_state = host_info['state']
+    host_mem = host_info['memorySize']
+    host_cpu = host_info['CPU']
+    host_disk = host_info['diskSize']
 
     factor = 1
     if metric == "mem":
@@ -72,9 +107,7 @@ def host_meet_threshold(host, rule):
         host_total = host_disk
 
     real_load = instances_num * factor / host_total * 100
-    LOG.info('Host %s real_load is %s' % (host, str(real_load)))
-    LOG.info('Threshold is %s' % threshold)
-    return real_load < threshold
+    return real_load
 
 def energy_action(host, action):
     if 'off' == action:
