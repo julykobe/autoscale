@@ -14,7 +14,7 @@ DONNOT_DOWN_HOSTS = ["compute1","compute2","compute3"]
 CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute5"]
 
 def execute(rule):
-    hosts = ["compute1","compute2","compute3","compute5","compute6"] # compute4
+    hosts = ["compute1","compute2","compute3","compute5"] # compute4
     # hosts = ["compute9","compute8","compute7","compute6","compute5","compute4","compute3","compute2","compute1"]
     if rule.action == 'off':
         hosts = hosts[::-1]
@@ -68,8 +68,8 @@ def host_meet_threshold(host, rule):
         factor = 20
         host_total = host_disk
 
-    real_load = instances_num * factor / host_total
-    LOG.info('Host %s real_load is %s' % host, str(real_load))
+    real_load = instances_num * factor / host_total * 100
+    LOG.info('Host %s real_load is %s' % (host, str(real_load)))
     LOG.info('Threshold is %s' % threshold)
     return real_load < threshold
 
