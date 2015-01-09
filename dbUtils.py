@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import log
 import MySQLdb
 import MySQLdb.cursors
 
@@ -10,6 +10,7 @@ DBUSER = utils.get_config('database', 'DBUSER')
 DBPASSWORD = utils.get_config('database', 'DBPASSWORD')
 DB = utils.get_config('database', 'DB')
 
+LOG = log.get_logger()
 
 # TODO need to move the cursor execute to decorator, and the func provides sql only
 def db_connect_control(cursorclass, *args, **kwargs):
