@@ -33,7 +33,7 @@ class computeNode(object):
             if self.state=='up':
                 return True
             else:
-		os.system(("sudo wakeonlan '%s'")%(self.macAddress))
+                os.system(("sudo wakeonlan '%s'")%(self.macAddress))
                 self.state='up'
                 dbHelper.nodeUpdateState(self.hostname,self.state)
                 return True
@@ -47,7 +47,7 @@ class computeNode(object):
                 return True
             else:
                 os.popen(("sudo ssh '%s'@'%s' service nova-compute stop")%(self.sysUser, self.hostname))
-          	os.system(("sudo ssh '%s'@'%s' init 0")%(self.sysUser, self.hostname))
+                os.system(("sudo ssh '%s'@'%s' init 0")%(self.sysUser, self.hostname))
                 self.state='down'
                 dbHelper.nodeUpdateState(self.hostname,self.state)
                 return True

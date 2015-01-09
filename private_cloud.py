@@ -23,10 +23,14 @@ def get_keystone_creds():
 
 def get_nova_creds():
     d = {}
-    d['username'] = os.environ['OS_USERNAME']
-    d['api_key'] = os.environ['OS_PASSWORD']
-    d['auth_url'] = os.environ['OS_AUTH_URL']
-    d['project_id'] = os.environ['OS_TENANT_NAME']
+    d['username'] = "admin"
+    d['api_key'] = "juno"
+    d['auth_url'] = "http://controller:5000/v2.0"
+    d['project_id'] = "demo"
+#    d['username'] = os.environ['OS_USERNAME']
+#    d['api_key'] = os.environ['OS_PASSWORD']
+#    d['auth_url'] = os.environ['OS_AUTH_URL']
+#    d['project_id'] = os.environ['OS_TENANT_NAME']
     return d
 
 
@@ -92,7 +96,7 @@ def live_migrate_for_host(host_name):
     else:
         creds = get_nova_creds()
         nova = nvclient.Client(**creds)
-        instance_ids = dbUtils.get_instances_id_by_host(host_name)
+        instance_ids = dbUtils.get_instance_id_by_host_from_nova_db(host_name)
         for instance_id in instance_ids:
 
             inst = nova.servers.get(str(instance_id))

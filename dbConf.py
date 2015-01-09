@@ -5,11 +5,11 @@
 
 #-----------------------------
 #DB_Host
-DBHOST="10.10.82.112"
+DBHOST="10.10.87.10"
 DBPORT="3306"
 #DB_UserName
 DBUSER="root"
 #DB_Password
-DBPASSWORD="123456"
+DBPASSWORD="juno"
 #DB_DBName
-DBNAME="InSTech_GAI"
+DBNAME="InSTech"

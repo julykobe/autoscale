@@ -59,7 +59,7 @@ def get_energy_rules(cursor):
 
 @db_connect_control(cursorclass="dict")
 def get_all_up_hosts(cursor):
-    sql = "select * from hardware where state = 'up'"
+    sql = "select * from hardware where type = 'compute_Node' state = 'up'"
     try:
         cursor.execute(sql)
     except:
@@ -102,6 +102,21 @@ def get_instances_id_by_host(cursor, host_name):
     instances_id = cursor.fetchall()
     # type is a tuple, like
     #(('f6dbc8a2-fcae-4eab-aeb1-b797be57b07b',), ('05e195ae-a64f-4c4a-a7d9-1ef8617b0de4',), ('c72fc98c-d034-4174-85a3-3a040ed4e7e3',))
+    return instances_id
+
+def get_instance_id_by_host_from_nova_db(host_name):
+    con = MySQLdb.connect(
+                host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db="nova")
+    cursor = con.cursor(cursorclass=MySQLdb.cursors.DictCursor)
+
+    sql = "select uuid from instances where host='" + \
+            host_name + "' and vm_state='active'"
+    cursor.execute(sql)
+    instances_id = cursor.fetchall()
+    
+    cursor.close()
+    con.close()
+
     return instances_id
 
 @db_connect_control(cursorclass="dict")

@@ -14,12 +14,14 @@ AV_HOSTS = []
 CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute4","compute5"]
 
 def execute(rule):
-    #hosts = utils.get_config('hosts', 'hosts')
-    #hosts = ["compute1","compute3","compute5"]
-    hosts = ["compute1","compute2","compute3","compute5"] # compute4
+    hosts = ["compute1","compute2","compute3","compute5","compute6"] # compute4
     # hosts = ["compute9","compute8","compute7","compute6","compute5","compute4","compute3","compute2","compute1"]
+    if rule['action'] == 'off':
+        hosts = hosts[::-1]
+
     for host in hosts:
         if host_meet_threshold(host, rule):
+            LOG.info('Result is True, execute action for Host %s' % host)
             energy_action(host,rule['action'])
         else:
             LOG.info('Host %s running in normal status' % host)
@@ -66,7 +68,8 @@ def host_meet_threshold(host, rule):
         host_total = host_disk
 
     real_load = instances_num * factor / host_total
-
+    LOG.info('Host %s real_load is %s' % host, real_load)
+    LOG.info('Threshold is %s' % threshold)
     return real_load < threshold
 
 def energy_action(host, action):
