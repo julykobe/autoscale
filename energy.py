@@ -95,6 +95,7 @@ def energy_saving(host):
         private_cloud.live_migrate_for_host(host)
         while len(dbUtils.get_instance_id_by_host_from_nova_db(host)) != 0:
             time.sleep(5)
+            LOG.info('Check whether all of the instances have been migrated')
         LOG.info('All instances have been live-migrated from Host %s' % host)
     else:
         LOG.info('Host cannot do live-migration, go directly shutdown %s' % host)
@@ -103,8 +104,8 @@ def energy_saving(host):
     if 'True' == utils.get_config('mode', 'testing'):
         LOG.info('Now begin to shutdown node')
     else:
-        import node_manager
-        demo=node_manager.computeNode(host)
+        import node_manage
+        demo=node_manage.computeNode(host)
         demo.stop()
         LOG.info('Host %s has been successfully shutdown' % host)
 
@@ -112,6 +113,6 @@ def energy_adding(host):
     if 'True' == utils.get_config('mode', 'testing'):
         LOG.info('Now begin to start node')
     else:
-        import node_manager
-        demo=node_manager.computeNode(host)
+        import node_manage
+        demo=node_manage.computeNode(host)
         demo.start()
