@@ -189,6 +189,31 @@ def update_instance_state_to_migrating(instance_id):
     con.close()
     return instance_id
 
+def get_vm_state_by_instance_id_from_nova_db(instance_id):
+    con = MySQLdb.connect(
+                host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db="nova")
+    cursor = con.cursor()
+
+    sql = "select vm_state from instances where uuid='" + str(instance_id) + "'" 
+    cursor.execute(sql)
+    vm_state = cursor.fetchall()
+    
+    cursor.close()
+    con.close()
+
+    return vm_state[0][0]
+
+def update_instance_state_to_active(instance_id):
+    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
+    cursor = con.cursor()
+
+    sql = "update instances set vm_state = 'active' where uuid = %s" % instance_id
+    cursor.execute(sql)
+    con.commit()
+
+    cursor.close()
+    con.close()
+    return instance_id
 
 def update_flag_in_db(rule_id, flag_name, flag):
     con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
