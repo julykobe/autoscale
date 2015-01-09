@@ -93,9 +93,9 @@ def energy_saving(host):
     # live migrate
     if host in CAN_MIGRATE_HOSTS:
         private_cloud.live_migrate_for_host(host)
-        LOG.info('All instances have been live-migrated from Host %s' % host)
         while len(dbUtils.get_instance_id_by_host_from_nova_db(host)) != 0:
             time.sleep(5)
+        LOG.info('All instances have been live-migrated from Host %s' % host)
     else:
         LOG.info('Host cannot do live-migration, go directly shutdown %s' % host)
 
