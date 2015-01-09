@@ -10,8 +10,8 @@ import public_cloud
 
 LOG = log.get_logger()
 
-AV_HOSTS = []
-CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute4","compute5"]
+DONNOT_DOWN_HOSTS = ["compute1","compute2","compute3"]
+CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute5"]
 
 def execute(rule):
     hosts = ["compute1","compute2","compute3","compute5","compute6"] # compute4
@@ -86,12 +86,18 @@ def energy_action(host, action):
         return
 
 def energy_saving(host):
+    if host in DONNOT_DOWN_HOSTS:
+        LOG.info('Host %s cannot shutdown' % host)
+        return
+
+    # live migrate
     if host in CAN_MIGRATE_HOSTS:
         private_cloud.live_migrate_for_host(host)
         LOG.info('All instances have been live-migrated from Host %s' % host)
     else:
         LOG.info('Host cannot do live-migration, go directly shutdown %s' % host)
 
+    # shutdown node
     if 'True' == utils.get_config('mode', 'testing'):
         LOG.info('Now begin to shutdown node')
     else:
