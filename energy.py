@@ -33,7 +33,7 @@ def host_meet_threshold(host, rule):
 
     threshold = rule.threshold
     action = rule.action
-    
+
     host_info = dbUtils.get_host_data_by_host_name(host)
     host_state = host_info['state']
     result = False
@@ -46,6 +46,9 @@ def host_meet_threshold(host, rule):
         return False
 
     if action == 'off' and host_num <= 3:#int(utils.get_config('hosts', 'MIN_NUM')):
+        return False
+
+    if action == 'on' and host_num >= 6:
         return False
 
     if action == 'on':
