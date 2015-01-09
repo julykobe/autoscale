@@ -49,7 +49,7 @@ def get_all_rules(cursor):
 
 @db_connect_control(cursorclass="dict")
 def get_energy_rules(cursor):
-    sql = "select * from energy"
+    sql = "select * from energy_test"
     try:
         cursor.execute(sql)
     except:
@@ -175,6 +175,18 @@ def get_monitor_data_by_group(group_id):
         LOG.error('There are no instances in group: %s' % group_id)
 
     return group_data
+
+def update_instance_state_to_migrating(instance_id):
+    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
+    cursor = con.cursor()
+
+    sql = "update instances set vm_state = 'MIGRATING' where uuid = %s" % instance_id
+    cursor.execute(sql)
+    con.commit()
+
+    cursor.close()
+    con.close()
+    return instance_id
 
 
 def update_flag_in_db(rule_id, flag_name, flag):

@@ -16,13 +16,13 @@ CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute4","compute5"]
 def execute(rule):
     hosts = ["compute1","compute2","compute3","compute5","compute6"] # compute4
     # hosts = ["compute9","compute8","compute7","compute6","compute5","compute4","compute3","compute2","compute1"]
-    if rule['action'] == 'off':
+    if rule.action == 'off':
         hosts = hosts[::-1]
 
     for host in hosts:
         if host_meet_threshold(host, rule):
             LOG.info('Result is True, execute action for Host %s' % host)
-            energy_action(host,rule['action'])
+            energy_action(host,rule.action)
         else:
             LOG.info('Host %s running in normal status' % host)
             continue
@@ -30,9 +30,9 @@ def execute(rule):
 
 def host_meet_threshold(host, rule):
 
-    metric = rule['type']
-    threshold = rule['threshold']
-    action = rule['action']
+    metric = rule.type
+    threshold = rule.threshold
+    action = rule.action
 
     result = False
 
@@ -54,7 +54,7 @@ def host_meet_threshold(host, rule):
         return False
 
     # following is to process the 'off' logic
-    instances_num = private_cloud.count_instances_num_on_host(host)
+    instances_num = len(dbUtils.get_instance_id_by_host_from_nova_db(host))
 
     factor = 1
     if metric == "mem":

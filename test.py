@@ -16,5 +16,5 @@ if __name__ == "__main__":
             LOG.warning("NOW running in TESTING mode")
         import pdb
         pdb.set_trace()
-        rule.check_all_rules()
+        rule.check_energy_rules()
         LOG.info("All rules have been checked")

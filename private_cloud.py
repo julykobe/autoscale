@@ -104,3 +104,5 @@ def live_migrate_for_host(host_name):
             target_host = random.choice(available_hosts)
 
             inst.live_migrate(target_host)
+            # set vm_state to migrating
+            dbUtils.update_instance_state_to_migrating(instance_id)

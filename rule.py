@@ -21,6 +21,9 @@ class Rule(object):
 
     def __init__(self, rule):
         self.id = rule['id']
+        self.type = rule['type']
+        self.threshold = rule['threshold']
+        self.action = rule['action']
         self.rule = rule
 
     # condition functions
