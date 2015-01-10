@@ -203,6 +203,20 @@ def get_vm_state_by_instance_id_from_nova_db(instance_id):
 
     return vm_state[0][0]
 
+def get_vm_host_by_instance_id_from_nova_db(instance_id):
+    con = MySQLdb.connect(
+                host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db="nova")
+    cursor = con.cursor()
+
+    sql = "select host from instances where uuid='" + str(instance_id) + "'" 
+    cursor.execute(sql)
+    host = cursor.fetchall()
+    
+    cursor.close()
+    con.close()
+
+    return host[0][0]
+
 def update_instance_state_to_active(instance_id):
     con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
     cursor = con.cursor()
