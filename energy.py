@@ -10,7 +10,7 @@ import public_cloud
 
 LOG = log.get_logger()
 
-DONNOT_DOWN_HOSTS = ["compute1","compute2","compute3"]
+DONNOT_DOWN_HOSTS = ["compute1","compute2"]
 CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute5"]
 
 def execute(rule):

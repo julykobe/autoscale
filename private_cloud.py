@@ -102,7 +102,7 @@ def live_migrate_for_host(host_name):
 
         instance_id = instance_id['uuid']
         inst = nova.servers.get(str(instance_id))
-        available_hosts = ["compute1", "compute2", "compute3"]
+        available_hosts = ["compute1", "compute2"]
         target_host = random.choice(available_hosts)
         LOG.info('Now begin live migrate instance %s to Host %s' % (instance_id, target_host))
 
