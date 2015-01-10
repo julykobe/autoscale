@@ -50,7 +50,7 @@ def get_all_rules(cursor):
 
 @db_connect_control(cursorclass="dict")
 def get_energy_rules(cursor):
-    sql = "select * from energy_test"
+    sql = "select * from energy"
     try:
         cursor.execute(sql)
     except:

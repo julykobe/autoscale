@@ -14,7 +14,7 @@ DONNOT_DOWN_HOSTS = ["compute1","compute2"]
 CAN_MIGRATE_HOSTS = ["compute1","compute2","compute3","compute5"]
 
 def execute(rule):
-    hosts = ["compute1","compute2","compute3","compute5"] # compute4
+    hosts = ["compute1","compute2","compute3","compute5","compute6"] # compute4
     # hosts = ["compute9","compute8","compute7","compute6","compute5","compute4","compute3","compute2","compute1"]
 
     if rule.action == 'off':
