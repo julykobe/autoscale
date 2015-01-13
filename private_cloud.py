@@ -107,8 +107,10 @@ def live_migrate_for_host(host_name):
         LOG.info('Now begin live migrate instance %s to Host %s' % (instance_id, target_host))
 
         inst.live_migrate(target_host)
+        
         # set vm_state to migrating
-        dbUtils.update_instance_state_to_migrating(instance_id)
+        tmpid = dbUtils.update_instance_state_to_migrating(instance_id)
+        LOG.info('tmpid is %s' % tmpid)##%s' % dbUtils.get_vm_host_by_instance_id_from_nova_db(instance_id))
         while dbUtils.get_vm_host_by_instance_id_from_nova_db(instance_id) != target_host:
             time.sleep(5)
             LOG.info('Check whether the instance have been migrated')

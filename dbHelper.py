@@ -60,7 +60,8 @@ def nodeUpdateState(nodeName,state):
 	try:
 		cnx=getConnectionForDB()
 		cursor = cnx.cursor()
-		query=("update hardware set state='%s' where hardwareName='%s';")%(state,nodeName)
+		updateTime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))
+		query=("update hardware set state='%s',updated_at='%s' where hardwareName='%s';")%(state,updateTime,nodeName)
 		cursor.execute(query)
                 cnx.commit()
 	except:

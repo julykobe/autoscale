@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import log
+import log,time
 import MySQLdb
 import MySQLdb.cursors
 
@@ -50,7 +50,7 @@ def get_all_rules(cursor):
 
 @db_connect_control(cursorclass="dict")
 def get_energy_rules(cursor):
-    sql = "select * from energy"
+    sql = "select * from energy where inValid = 1"
     try:
         cursor.execute(sql)
     except:
@@ -181,13 +181,25 @@ def update_instance_state_to_migrating(instance_id):
     con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
     cursor = con.cursor()
 
-    sql = "update instances set vm_state = 'MIGRATING' where uuid = %s" % instance_id
+    sql = "update instances set vm_state = 'MIGRATING' where uuid = '%s'" % instance_id
     cursor.execute(sql)
     con.commit()
 
     cursor.close()
     con.close()
     return instance_id
+
+def logfile_add(msg,level):
+    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
+    cursor = con.cursor()
+    ctime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()+28800))
+    sql=("insert into log(user,operation,timestamp,level,msg) values('admin','Energy Conservation','%s','%s','%s');")%(str(ctime),level,msg)
+    cursor.execute(sql)
+    con.commit()
+
+    cursor.close()
+    con.close()
+    return msg
 
 def get_vm_state_by_instance_id_from_nova_db(instance_id):
     con = MySQLdb.connect(
@@ -211,7 +223,7 @@ def get_vm_host_by_instance_id_from_nova_db(instance_id):
     sql = "select host from instances where uuid='" + str(instance_id) + "'" 
     cursor.execute(sql)
     host = cursor.fetchall()
-    
+    LOG.info('host is %s, result is %s' % (host,host[0][0])) 
     cursor.close()
     con.close()
 
@@ -221,7 +233,7 @@ def update_instance_state_to_active(instance_id):
     con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
     cursor = con.cursor()
 
-    sql = "update instances set vm_state = 'active' where uuid = %s" % instance_id
+    sql = "update instances set vm_state = 'active' where uuid = '%s'" % instance_id
     cursor.execute(sql)
     con.commit()
 
