@@ -105,7 +105,7 @@ def live_migrate_for_host(host_name):
         available_hosts = ["compute1", "compute2"]
         target_host = random.choice(available_hosts)
         LOG.info('Now begin live migrate instance %s to Host %s' % (instance_id, target_host))
-
+	dbUtils.insert_into_instance_beingMigrated(instance_id,target_host)
         inst.live_migrate(target_host)
         
         # set vm_state to migrating
@@ -115,3 +115,4 @@ def live_migrate_for_host(host_name):
             time.sleep(5)
             LOG.info('Check whether the instance have been migrated')
         dbUtils.update_instance_state_to_active(instance_id)
+	dbUtils.delete_instance_beingMigrated(instance_id)

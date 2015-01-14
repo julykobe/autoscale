@@ -56,10 +56,13 @@ def host_meet_threshold(host, rule):
 	LOG.info('Has exceeded the maximal number of hosts!')
 	dbUtils.logfile_add('Has exceeded the maximal number of hosts!','WARNING')
         return False
-    if action == 'on' and int(time.time()-time.mktime(time.strptime(host_updatedTime,'%Y-%m-%d %H:%M:%S')))<=600:  #don't turn on the node which has just been turned down in 10 minutes
-	LOG.info('Host %s has just been OFF and remained in protection period!' % host)
-	dbUtils.logfile_add('Host %s has just been OFF and remained in protection period!' % host,'WARNING')
-	return False
+    if action == 'on':
+	if dbUtils.get_host_data_by_host_name(host)['state']=='up':
+		return False
+	elif int(time.time()-time.mktime(time.strptime(host_updatedTime,'%Y-%m-%d %H:%M:%S')))<=600:  #don't turn on the node which has just been turned down in 10 minutes
+		LOG.info('Host %s has just been OFF and remained in protection period!' % host)
+		dbUtils.logfile_add('Host %s has just been OFF and remained in protection period!' % host,'WARNING')
+		return False
 
     if action == 'on':
         return on_status_check(host, rule)

@@ -201,6 +201,21 @@ def logfile_add(msg,level):
     con.close()
     return msg
 
+def insert_into_instance_beingMigrated(instance_id,target_host):
+    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
+    cursor = con.cursor()
+    sql1=("select * from instances where uuid='%s';")%(instance_id)
+    cursor.execute(sql1)
+    instance = cursor.fetchall()
+    sql2=("insert into instances(created_at,updated_at,project_id,image_ref,power_state,vm_state,hostname,display_name,instance_type_id,uuid,cloud_id,networkId,ip) values('%s','%s','%s','%s','%d','%s','%s','%s','%s','%s','%s','%s','%s');")%(str(instance[0][0]),str(instance[0][1]),instance[0][5],instance[0][6],instance[0][7],'BeingMigrated',target_host,instance[0][10],instance[0][13],'migrate'+instance[0][14][:-7],instance[0][17],instance[0][18],instance[0][20])
+    LOG.info(sql2)
+    cursor.execute(sql2)
+    con.commit()
+
+    cursor.close()
+    con.close()
+    return instance_id
+
 def get_vm_state_by_instance_id_from_nova_db(instance_id):
     con = MySQLdb.connect(
                 host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db="nova")
@@ -233,7 +248,20 @@ def update_instance_state_to_active(instance_id):
     con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
     cursor = con.cursor()
 
-    sql = "update instances set vm_state = 'active' where uuid = '%s'" % instance_id
+    sql = "update instances set vm_state = 'ACTIVE' where uuid = '%s'" % instance_id
+    cursor.execute(sql)
+    con.commit()
+
+    cursor.close()
+    con.close()
+    return instance_id
+
+def delete_instance_beingMigrated(instance_id):
+    con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
+    cursor = con.cursor()
+
+    sql =("delete from instances where uuid='%s' and vm_state='BeingMigrated';")%('migrate'+instance_id[:-7])
+    LOG.info(sql)
     cursor.execute(sql)
     con.commit()
 
