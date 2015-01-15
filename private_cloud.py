@@ -114,5 +114,5 @@ def live_migrate_for_host(host_name):
         while dbUtils.get_vm_host_by_instance_id_from_nova_db(instance_id) != target_host:
             time.sleep(5)
             LOG.info('Check whether the instance have been migrated')
-        dbUtils.update_instance_state_to_active(instance_id)
+        dbUtils.update_instance_state_to_active(instance_id,target_host)
 	dbUtils.delete_instance_beingMigrated(instance_id)

@@ -244,11 +244,12 @@ def get_vm_host_by_instance_id_from_nova_db(instance_id):
 
     return host[0][0]
 
-def update_instance_state_to_active(instance_id):
+def update_instance_state_to_active(instance_id,target_host):
     con = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASSWORD, db=DB)
     cursor = con.cursor()
 
-    sql = "update instances set vm_state = 'ACTIVE' where uuid = '%s'" % instance_id
+    sql = "update instances set vm_state = 'ACTIVE',hostname='%s' where uuid = '%s'" % (target_host,instance_id)
+    LOG.info(sql)
     cursor.execute(sql)
     con.commit()
 
